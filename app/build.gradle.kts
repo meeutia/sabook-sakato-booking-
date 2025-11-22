@@ -26,7 +26,7 @@ android {
 
         debug {
             // Menambahkan BASE_URL untuk environment debug
-            buildConfigField("String", "BASE_URL", "\"http://192.168.137.1:3000\"")
+            buildConfigField("String", "BASE_URL", "\"http://localhost:3000\"")
         }
 
         release {
@@ -36,7 +36,7 @@ android {
                 "proguard-rules.pro"
             )
 
-            buildConfigField("String", "BASE_URL", "\"http://192.168.137.1:3000\"")
+            buildConfigField("String", "BASE_URL", "\"http://localhost:3000\"")
         }
     }
     compileOptions {
