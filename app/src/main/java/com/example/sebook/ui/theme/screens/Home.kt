@@ -169,7 +169,7 @@ fun HomeContent(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .padding(14.dp)
-                            .offset(y = 35.dp)
+                            .offset(y = 6.dp)
                     ) {
                         Text(text = "Welcome,", fontSize = 26.sp, fontWeight = FontWeight.Bold)
                     }
