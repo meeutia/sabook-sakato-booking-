@@ -29,18 +29,27 @@ fun CustomButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    fontSize: TextUnit = 16.sp // Menambahkan parameter fontSize untuk CustomButton
-) {
+    fontSize: TextUnit = 16.sp, // Menambahkan parameter fontSize untuk CustomButton
+    enabled: Boolean = true
+    ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         shape = RoundedCornerShape(32.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF96300)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (enabled) Color(0xFFF96300) else Color(0xFFCCCCCC),
+            contentColor = Color.White,
+            disabledContainerColor = Color(0xFFCCCCCC),
+            disabledContentColor = Color.White
+        ),
         modifier = modifier
-            .wrapContentWidth() // Automatically adjusts the width based on the text content            .height(44.37183.dp)  // Menentukan tinggi tombol sesuai Figma
-            .shadow(elevation = 8.dp, spotColor = Color(0x40000000), ambientColor = Color(0x40000000))  // Menambahkan shadow
-            .border(width = 1.dp, color = Color(0xFF4E8BC4), shape = RoundedCornerShape(32.dp))  // Menambahkan border dengan rounded corner
-            .background(color = Color(0xFFF96300), shape = RoundedCornerShape(32.dp))  // Menambahkan background dengan rounded corner sesuai Figma
-
+            .wrapContentWidth()
+            .height(44.dp)
+            .border(
+                width = 1.dp,
+                color = if (enabled) Color(0xFF4E8BC4) else Color.Transparent,
+                shape = RoundedCornerShape(32.dp)
+            )
     ) {
         Text(
             text = text,

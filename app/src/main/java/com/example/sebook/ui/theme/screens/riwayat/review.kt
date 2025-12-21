@@ -35,6 +35,14 @@ fun ReviewScreen(
     var reviewText by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
 
+    val context = LocalContext.current
+    var showValidationDialog by remember { mutableStateOf(false) }
+    var validationMessage by remember { mutableStateOf("") }
+
+    val isRatingValid = rating > 0
+    val isCommentValid = reviewText.trim().isNotEmpty()
+    val isFormValid = isRatingValid && isCommentValid
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -60,8 +68,21 @@ fun ReviewScreen(
             )
         },
         content = {
-            paddingValues ->
+                paddingValues ->
             Box(modifier = Modifier.fillMaxSize()){
+                if (showValidationDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showValidationDialog = false },
+                        title = { Text("Oops") },
+                        text = { Text(validationMessage) },
+                        confirmButton = {
+                            TextButton(onClick = { showValidationDialog = false }) {
+                                Text("OK")
+                            }
+                        }
+                    )
+                }
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -94,6 +115,13 @@ fun ReviewScreen(
                             }
                         }
                     }
+                    if (!isRatingValid && reviewText.isNotBlank()) {
+                        Text(
+                            text = "Pilih rating bintang dulu ya.",
+                            color = Color.Red,
+                            fontSize = 12.sp
+                        )
+                    }
 
                     // Review Text Area
                     Spacer(modifier = Modifier.height(16.dp))
@@ -124,7 +152,20 @@ fun ReviewScreen(
                     ) {
                         CustomButton(
                             text = "Submit",
-                            onClick = { viewModel.submitReview(idPengajuan, reviewText, rating) }
+                            enabled = isFormValid,
+                            onClick = {
+                                if (!isRatingValid) {
+                                    validationMessage = "Rating bintang wajib diisi."
+                                    showValidationDialog = true
+                                    return@CustomButton
+                                }
+                                if (!isCommentValid) {
+                                    validationMessage = "Komentar wajib diisi."
+                                    showValidationDialog = true
+                                    return@CustomButton
+                                }
+                                viewModel.submitReview(idPengajuan, reviewText.trim(), rating)
+                            }
                         )
                     }
 

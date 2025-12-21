@@ -104,7 +104,7 @@ fun Login(
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Text(
-                    text = "Punya akun?",
+                    text = "Tidak punya akun?",
                     color = Color(0xFF6B8E7F),
                     fontSize = 14.sp
                 )

@@ -1,6 +1,7 @@
 package com.example.sebook
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -29,10 +30,46 @@ import com.example.sebook.ui.theme.screens.riwayat.RiwayatPengajuan
 import com.example.sebook.ui.theme.screens.panduan.PanduanScreen
 import com.example.sebook.ui.theme.screens.ChangePasswordScreen
 import com.example.sebook.ui.theme.screens.riwayat.ReviewScreen
+import com.google.firebase.messaging.FirebaseMessaging
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 
 class MainActivity : ComponentActivity() {
+    private val requestNotifPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            Log.d("NOTIF_PERMISSION", "granted = $granted")
+        }
+
+    private fun askNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!granted) {
+                requestNotifPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        askNotificationPermissionIfNeeded()
+        android.util.Log.d("FCM_TOKEN", "onCreate jalan ✅") // <-- ini harus muncul
+
+        com.google.firebase.messaging.FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    android.util.Log.e("FCM_TOKEN", "Gagal ambil token", task.exception)
+                    return@addOnCompleteListener
+                }
+                val token = task.result
+                android.util.Log.d("FCM_TOKEN", "TOKEN: $token")
+            }
+
         setContent {
             SebookTheme {
                 val navController = rememberNavController()

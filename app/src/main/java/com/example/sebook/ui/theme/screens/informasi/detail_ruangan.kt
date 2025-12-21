@@ -176,7 +176,6 @@ fun DetailRuanganContent(navController: NavController, detail: DetailRuanganItem
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             CustomButton(text = "Ajukan Booking", onClick = { navController.navigate("jadwal/${detail.id_ruangan}") }, modifier = Modifier.weight(1f).padding(end = 4.dp), fontSize = 11.sp)
-            CustomButton(text = "Jadwal Tersedia", onClick = { navController.navigate("jadwal/0") }, modifier = Modifier.weight(1f).padding(start = 4.dp), fontSize = 11.sp)
         }
 
         Spacer(modifier = Modifier.height(18.dp))

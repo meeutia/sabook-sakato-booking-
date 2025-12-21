@@ -54,9 +54,6 @@ fun ForumScreen(
 ) {
     val uiState by forumViewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        forumViewModel.getForumReviews()
-    }
 
     Scaffold(
         topBar = {
@@ -92,23 +89,37 @@ fun ForumScreen(
                     }
                     is UiState.Success -> {
                         val reviews = state.data
-                        Text(
-                            text = "Recent Reviews",
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(16.dp)
-                        )
 
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            items(reviews) { review ->
-                                ReviewItem(review = review)
-                                Divider(
-                                    color = Color(0xFFE0E0E0),
-                                    thickness = 1.dp,
-                                    modifier = Modifier.padding(horizontal = 16.dp)
+                        if (reviews.isEmpty()) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Belum ada review",
+                                    color = Color.Gray,
+                                    fontSize = 16.sp
                                 )
+                            }
+                        } else {
+                            Text(
+                                text = "Recent Reviews",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(16.dp)
+                            )
+
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                items(reviews) { review ->
+                                    ReviewItem(review = review)
+                                    Divider(
+                                        color = Color(0xFFE0E0E0),
+                                        thickness = 1.dp,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                }
                             }
                         }
                     }

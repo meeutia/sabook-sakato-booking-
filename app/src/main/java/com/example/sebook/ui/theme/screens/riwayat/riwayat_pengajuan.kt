@@ -53,6 +53,13 @@ import com.example.sebook.R
 import com.example.sebook.data.model.HistoryItem
 import com.example.sebook.ui.ViewModelFactory
 import com.example.sebook.ui.login.UiState
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
 
 @Composable
 fun RiwayatPengajuan(
@@ -176,7 +183,18 @@ fun PengajuanCard(
     onDeleteClick: () -> Unit,
     onReviewClick: () -> Unit
 ) {
-    val canReview = historyItem.status == "Disetujui"
+    val status = historyItem.status.trim().lowercase()
+    val isDisetujui = status == "disetujui"
+    val isDibatalkan = status == "dibatalkan"
+    val hasReviewed = historyItem.hasReviewed
+
+    val isExpired = isExpiredBooking(historyItem.tanggal_sewa, historyItem.waktu_selesai)
+
+    val canEdit = (isDibatalkan || (isDisetujui && !hasReviewed)) && !isExpired
+    val canDelete = (isDisetujui && !hasReviewed) && !isExpired
+    val canReview = isDisetujui && !hasReviewed
+
+
 
     Card(
         modifier = Modifier
@@ -265,6 +283,7 @@ fun PengajuanCard(
                 ) {
                     FilledIconButton(
                         onClick = onEditClick,
+                        enabled = canEdit,
                         modifier = Modifier.size(36.dp),
                         shape = RoundedCornerShape(8.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(
@@ -283,6 +302,7 @@ fun PengajuanCard(
 
                     FilledIconButton(
                         onClick = onDeleteClick,
+                        enabled = canDelete,
                         modifier = Modifier.size(36.dp),
                         shape = RoundedCornerShape(8.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(
@@ -321,6 +341,44 @@ fun PengajuanCard(
     }
 }
 
+private fun parseTanggalFlexible(tanggal: String): LocalDate? {
+    val cleaned = tanggal.trim()
+        .substringBefore('T')
+        .substringBefore(' ')  // kalau formatnya ada spasi
+
+    val formats = listOf(
+        DateTimeFormatter.ofPattern("dd-MM-yyyy"),
+        DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+        DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+        DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    )
+
+    for (format in formats) {
+        try {
+            return LocalDate.parse(cleaned, format)
+        } catch (_: Exception) {}
+    }
+    return null
+}
+
+
+private fun parseWaktuFlexible(waktu: String): LocalTime? {
+    val s = waktu.trim()
+    val candidates = listOf("HH:mm:ss", "HH:mm")
+    for (p in candidates) {
+        try { return LocalTime.parse(s, DateTimeFormatter.ofPattern(p)) }
+        catch (_: Exception) {}
+    }
+    return null
+}
+
+private fun isExpiredBooking(tanggalSewa: String, waktuSelesai: String): Boolean {
+    val date = parseTanggalFlexible(tanggalSewa) ?: return false
+    val endTime = parseWaktuFlexible(waktuSelesai) ?: return false
+    val endAt = LocalDateTime.of(date, endTime)
+    val now = ZonedDateTime.now(ZoneId.systemDefault()).toLocalDateTime()
+    return now.isAfter(endAt)
+}
 @Preview(showBackground = true)
 @Composable
 fun PreviewRiwayatPengajuan() {

@@ -16,6 +16,10 @@ class ForumViewModel(private val repository: ForumRepository) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<List<ForumReview>>>(UiState.Idle)
     val uiState: StateFlow<UiState<List<ForumReview>>> = _uiState
 
+    init {
+        getForumReviews() // ✅ fetch sekali saat VM dibuat
+    }
+
     fun getForumReviews() {
         _uiState.value = UiState.Loading
         viewModelScope.launch {
